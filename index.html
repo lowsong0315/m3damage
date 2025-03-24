@@ -75,11 +75,32 @@
     </table>
 
     <!-- 食品收藏列表 --------------------------------------->
-
+    <h3>食品收藏</h3>
+    <!-- 重置食品收藏按鈕 -->
+    <button @click="resetFoodItems">重置食品收藏</button>
+    <!-- 吃滿食品收藏按鈕 -->
+    <button @click="maxFoodItems">吃滿食品收藏</button>
+    <table border="1">
+      <thead>
+        <tr>
+          <th>食品名稱</th>
+          <th>已使用</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="item in foodItems" :key="item.name">
+          <td>{{ item.name }}</td>
+          <td>
+            <input type="number" v-model.number="item.used" :min="0" :max="item.maxUses"
+              @input="calculateFoodItems" />
+          </td>
+        </tr>
+      </tbody>
+    </table>
 
 
     <!-- 總屬性顯示 -------------------------------------->
-    <h2>總屬性</h2>
+    <h3>總屬性</h3>
     <table border="1">
       <tr>
         <th>屬性名稱</th>
@@ -124,7 +145,7 @@
         this.loadBaseStats();
       },
       methods: {
-        // 讀取職業列表
+        // 讀取職業列表------------------------------------
         loadJobList() {
           fetch("/job_list.json")
             .then(response => response.json())  // 解析 JSON 資料
@@ -134,7 +155,7 @@
             .catch(error => console.error('載入職業資料時發生錯誤:', error));
         },
 
-        // 讀取屬性點
+        // 讀取屬性點------------------------------------
         loadAttributePoints() {
           fetch("/attribute_point.json")
             .then(response => response.json())
@@ -148,7 +169,7 @@
             .catch(error => console.error("屬性道具數據載入錯誤:", error));
         },
 
-        // 讀取屬性道具
+        // 讀取屬性道具------------------------------------
         loadAttributeItems() {
           fetch("/attribute_item.json")
             .then(response => response.json())
@@ -158,7 +179,7 @@
             .catch(error => console.error("屬性道具數據載入錯誤:", error));
         },
 
-        // 讀取基礎屬性
+        // 讀取基礎屬性------------------------------------
         loadBaseStats() {
           fetch("/base.json")
             .then(response => response.json())
@@ -171,7 +192,7 @@
             .catch(error => console.error("基礎數據載入錯誤:", error));
         },
 
-        // 讀取食品收藏
+        // 讀取食品收藏------------------------------------
         loadFoodItems() {
           fetch("/food_item.json")
             .then(response => response.json())
@@ -181,7 +202,7 @@
             .catch(error => console.error("食品收藏數據載入錯誤:", error));
         },
 
-        // 計算屬性點影響
+        // 計算屬性點影響------------------------------------
         calculateAttributesPoints() {
           let newStats = {};
 
@@ -211,7 +232,7 @@
           this.updateStats(differenceStats);
         },
 
-        // 計算屬性道具影響
+        // 計算屬性道具影響------------------------------------
         calculateAttributesItems() {
           let newStats = {};
 
@@ -239,7 +260,35 @@
           this.updateStats(differenceStats);
         },
 
-        // 更新總屬性
+        // 計算食品收藏影響------------------------------------
+        calculateFoodItems() {
+          let newStats = {};
+
+          this.foodItems.forEach(item => {
+            item.effect.forEach(effect => {
+              if (!newStats[effect.attributes]) {
+                newStats[effect.attributes] = 0;
+              }
+              newStats[effect.attributes] += effect.value * item.used;
+            });
+          });
+
+          // 計算變化量
+          let differenceStats = {};
+          for (const key in newStats) {
+            differenceStats[key] = newStats[key] - (this.previousFoodItemsStats[key] || 0);
+          }
+          for (const key in this.previousFoodItemsStats) {
+            if (!(key in newStats)) {
+              differenceStats[key] = -this.previousFoodItemsStats[key];
+            }
+          }
+
+          this.previousFoodItemsStats = { ...newStats };
+          this.updateStats(differenceStats);
+        },
+
+        // 更新總屬性------------------------------------
         updateStats(differenceStats) {
           for (const key in differenceStats) {
             if (this.totalStats[key]) {
@@ -248,22 +297,34 @@
           }
         },
 
-        // 重置屬性點
+        // 重置屬性點------------------------------------
         resetAttributesPoints() {
           this.attributesPoints.forEach(stat => this.attributesPointsUsed[stat.name] = 0);
           this.calculateAttributesPoints();
         },
 
-        // 重置屬性道具
+        // 重置屬性道具------------------------------------
         resetAttributesItems() {
           this.props.forEach(item => item.used = 0);
           this.calculateAttributesItems();
         },
 
-        // 吃滿屬性道具
+        // 吃滿屬性道具------------------------------------
         maxAttributesItems() {
           this.props.forEach(item => item.used = item.maxUses);
           this.calculateAttributesItems();
+        },
+
+        // 重置食品收藏------------------------------------
+        resetFoodItems() {
+          this.foodItems.forEach(item => item.used = 0);
+          this.calculateFoodItems();
+        },
+
+        // 吃滿食品收藏------------------------------------
+        maxFoodItems() {
+          this.foodItems.forEach(item => item.used = item.maxUses);
+          this.calculateFoodItems();
         }
       }
     }).mount("#app");
