@@ -1,0 +1,135 @@
+[
+  { "name": "魔法餅乾", "maxUses": 5 ,"effect":[
+   {"attributes":"最大魔力","value":10}
+    ]
+  },
+  { "name": "魔法麵包", "maxUses": 5 ,"effect":[
+    {"attributes":"最大魔力","value":10}
+     ]},
+  { "name": "高級巧克力", "maxUses": 2 ,"effect":[
+    {"attributes":"最大疲勞","value":10} 
+     ]},
+  { "name": "高級燉肉粥", "maxUses": 2 ,"effect":[
+    {"attributes":"最大疲勞","value":10} 
+     ]},
+  { "name": "高級蔬果沙拉", "maxUses": 2 ,"effect":[
+    {"attributes":"最大疲勞","value":10} 
+     ]},
+  { "name": "豪華餅乾", "maxUses": 2 ,"effect":[
+    {"attributes":"最大水量","value":10}
+     ]},
+  { "name": "豪華沙拉", "maxUses": 2 ,"effect":[
+    {"attributes":"最大水量","value":10}
+     ]},
+  { "name": "豪華刺身", "maxUses": 2 ,"effect":[
+    {"attributes":"最大水量","value":10}
+     ]},
+  { "name": "烤熟棉花糖", "maxUses": 2 ,"effect":[
+    {"attributes":"最大健康","value":10}
+     ]},
+  { "name": "啤酒", "maxUses": 10 ,"effect":[
+    {"attributes":"最大疲勞","value":5}
+     ]},
+  { "name": "莎瓦娜", "maxUses": 5 ,"effect":[
+    {"attributes":"最大水量","value":10}
+     ]},
+  { "name": "紅酒", "maxUses": 5 ,"effect":[
+    {"attributes":"最大魔力","value":10}
+     ]},
+  { "name": "白蘭地", "maxUses": 5 ,"effect":[
+    {"attributes":"防禦力","value":2}
+     ]},
+  { "name": "威士忌", "maxUses": 5 ,"effect":[
+    {"attributes":"最大血量","value":20}
+     ]},
+  { "name": "龍舌蘭", "maxUses": 5 ,"effect":[
+    {"attributes":"掉寶率","value":2}
+     ]},
+  { "name": "蜂蜜酒", "maxUses": 5 ,"effect":[
+    {"attributes":"洞察力","value":1}
+     ]},
+  { "name": "琴酒", "maxUses": 5 ,"effect":[
+    {"attributes":"暴擊率","value":1}
+     ]},
+  { "name": "伏特加", "maxUses": 5 ,"effect":[
+    {"attributes":"迴避率","value":1}
+     ]},
+  { "name": "漢堡", "maxUses": 5 ,"effect":[
+    {"attributes":"造成的傷害","value":2}
+     ]},
+  { "name": "一杯茶", "maxUses": 5 ,"effect":[
+    {"attributes":"最大水量","value":10}
+     ]},
+  { "name": "一杯咖啡", "maxUses": 5 ,"effect":[
+    {"attributes":"最大水量","value":10}
+     ]},
+  { "name": "楓糖鬆餅", "maxUses": 5 ,"effect":[
+    {"attributes":"造成的傷害","value":2}
+     ]},
+  { "name": "咖哩飯", "maxUses": 3 ,"effect":[
+    {"attributes":"最大魔力","value":30}
+     ]},
+  { "name": "蛋炒飯", "maxUses": 3 ,"effect":[
+    {"attributes":"最大疲勞","value":15}
+     ]},
+  { "name": "炸蝦飯", "maxUses": 3 ,"effect":[
+    {"attributes":"最大水量","value":15}
+     ]},
+  { "name": "義大利麵", "maxUses": 3 ,"effect":[
+    {"attributes":"最大健康","value":15}
+     ]},
+  { "name": "牛排", "maxUses": 3 ,"effect":[
+    {"attributes":"暴擊率","value":4}
+     ]},
+  { "name": "蛋炒麵", "maxUses": 3 ,"effect":[
+    {"attributes":"迴避率","value":4}
+  ]},
+  { "name": "咖哩蛋包飯", "maxUses": 3 ,"effect":[
+    {"attributes":"防禦力","value":10}
+  ]},
+  { "name": "滷肉飯", "maxUses": 3 ,"effect":[
+    {"attributes":"最大血量","value":60}
+  ]},
+  { "name": "什錦炒麵", "maxUses": 3 ,"effect":[
+    {"attributes":"最大耐力","value":10}
+  ]},
+  { "name": "蛋包飯", "maxUses": 3 ,"effect":[
+    {"attributes":"生命恢復","value":30}
+  ]},
+  { "name": "真●番茄巧達湯", "maxUses": 5 ,"effect":[
+    {"attributes":"最大魔力","value":50}
+  ]},
+  { "name": "真●豬肉辣醬湯", "maxUses": 5 ,"effect":[
+    {"attributes":"防禦力","value":10}
+  ]},
+  { "name": "真●蘑菇奶油湯", "maxUses": 5 ,"effect":[
+    {"attributes":"掉寶率","value":4}
+  ]},
+  { "name": "真●馬鈴薯燉肉", "maxUses": 5 ,"effect":[
+    {"attributes":"最大血性","value":5}
+  ]},
+  { "name": "真●牛肉羅宋湯", "maxUses": 5 ,"effect":[
+    {"attributes":"洞察力","value":1}
+  ]},
+  { "name": "真●黯然消魂飯", "maxUses": 5 ,"effect":[
+    {"attributes":"造成的傷害","value":3}
+  ]},
+  { "name": "真●王牌牛肉麵", "maxUses": 5 ,"effect":[
+    {"attributes":"暴擊傷害","value":3}
+  ]},
+  { "name": "真●藥燉排骨湯", "maxUses": 5 ,"effect":[
+    {"attributes":"造成的傷害","value":3}
+  ]},
+  { "name": "真●御豚骨拉麵", "maxUses": 5 ,"effect":[
+    {"attributes":"掉寶率","value":4}
+  ]},
+  { "name": "虹鋼土豆", "maxUses": 3 ,"effect":[
+    {"attributes":"迴避率","value":3}
+  ]},
+  { "name": "傳說咖啡", "maxUses": 10 ,"effect":[
+    {"attributes":"掉寶率","value":5}
+  ]},
+  { "name": "傳說茶", "maxUses": 10 ,"effect":[
+    {"attributes":"對魔王攻擊力","value":5}
+  ]}
+]

@@ -1,0 +1,127 @@
+[
+  { "name": "生命水晶", "maxUses": 50 ,"effect":[
+   {"attributes":"最大血量","value":20},
+   {"attributes":"最大血性","value":1} 
+    ]
+  },
+  { "name": "天界之果", "maxUses": 20 ,"effect":[
+    {"attributes":"最大血量","value":50},
+    {"attributes":"生命恢復","value":5} 
+     ]},
+  { "name": "萬象寶典", "maxUses": 20 ,"effect":[
+    {"attributes":"最大血量","value":50},
+    {"attributes":"魔力恢復","value":10} 
+     ]},
+  { "name": "奇蹟之粉", "maxUses": 20 ,"effect":[
+    {"attributes":"造成的傷害","value":1}
+     ]},
+  { "name": "世界精華", "maxUses": 20 ,"effect":[
+    {"attributes":"最大血量","value":100}
+     ]},
+  { "name": "世紀之果", "maxUses": 20 ,"effect":[
+    {"attributes":"最大血量","value":50},
+    {"attributes":"造成的傷害","value":5} 
+     ]},
+  { "name": "採礦教戰守則", "maxUses": 10 ,"effect":[
+    {"attributes":"物理攻擊力","value":3},
+    {"attributes":"魔法攻擊力","value":3},
+    {"attributes":"暴擊率","value":3}, 
+    {"attributes":"迴避率","value":3},
+    {"attributes":"最大血量","value":50}
+     ]},
+  { "name": "仙饌蜜酒", "maxUses": 10 ,"effect":[
+    {"attributes":"最大魔力","value":100},
+    {"attributes":"魔力恢復","value":10} 
+     ]},
+  { "name": "覺醒秘典", "maxUses": 12 ,"effect":[
+    {"attributes":"最大魔力","value":50},
+    {"attributes":"最大水量","value":30}, 
+    {"attributes":"最大疲勞","value":30} 
+     ]},
+  { "name": "天地寶晶", "maxUses": 10 ,"effect":[
+    {"attributes":"物理攻擊力","value":5},
+    {"attributes":"魔法攻擊力","value":5},
+    {"attributes":"最大血量","value":100},
+    {"attributes":"穿透值","value":1}
+     ]},
+  { "name": "永恆聖杯", "maxUses": 20 ,"effect":[
+    {"attributes":"物理攻擊力","value":1},
+    {"attributes":"魔法攻擊力","value":1},
+    {"attributes":"最大魔力","value":40},
+    {"attributes":"最大血性","value":1} 
+     ]},
+  { "name": "幸運龍爪", "maxUses": 40 ,"effect":[
+    {"attributes":"物理攻擊力","value":1},
+    {"attributes":"魔法攻擊力","value":1},
+    {"attributes":"生命恢復","value":5} 
+     ]},
+  { "name": "完美蜂王漿", "maxUses": 40 ,"effect":[
+    {"attributes":"物理攻擊力","value":1},
+    {"attributes":"魔法攻擊力","value":1},
+    {"attributes":"魔力恢復","value":5} 
+     ]},
+  { "name": "全知聖果", "maxUses": 40 ,"effect":[
+    {"attributes":"掉寶率","value":1}
+     ]},
+  { "name": "傳說魚湯", "maxUses": 10 ,"effect":[
+    {"attributes":"物理攻擊力","value":2},
+    {"attributes":"魔法攻擊力","value":2},
+    {"attributes":"掉寶率","value":2}
+     ]},
+  { "name": "傳奇英雄傳", "maxUses": 20 ,"effect":[
+    {"attributes":"物理攻擊力","value":2},
+    {"attributes":"魔法攻擊力","value":2},
+    {"attributes":"最大血量","value":50},
+    {"attributes":"最大魔力","value":50}
+     ]},
+  { "name": "次元魔晶", "maxUses": 100 ,"effect":[
+    {"attributes":"物理攻擊力","value":1},
+    {"attributes":"魔法攻擊力","value":1}
+     ]},
+  { "name": "渾沌之源", "maxUses": 20 ,"effect":[
+    {"attributes":"物理攻擊力","value":2},
+    {"attributes":"魔法攻擊力","value":2},
+    {"attributes":"最大血量","value":100}
+     ]},
+  { "name": "精煉人參雞精", "maxUses": 20 ,"effect":[
+    {"attributes":"最大疲勞","value":20}
+     ]},
+  { "name": "精煉靈芝蜆精", "maxUses": 20 ,"effect":[
+    {"attributes":"最大健康","value":20}
+     ]},
+  { "name": "失落薔薇協議", "maxUses": 1 ,"effect":[
+    {"attributes":"最大血量","value":500},
+    {"attributes":"物理攻擊力","value":10},
+    {"attributes":"魔法攻擊力","value":10},
+    {"attributes":"暴擊率","value":10}, 
+    {"attributes":"迴避率","value":10},
+    {"attributes":"穿透值","value":5},
+    {"attributes":"最大魔力","value":1000}
+     ]},
+  { "name": "無限翡翠", "maxUses": 10 ,"effect":[
+    {"attributes":"最大血量","value":100},
+    {"attributes":"物理攻擊力","value":1},
+    {"attributes":"魔法攻擊力","value":1}
+     ]},
+  { "name": "幸運藥劑", "maxUses": 20 ,"effect":[
+    {"attributes":"最大血量","value":20},
+    {"attributes":"意志力","value":1} 
+     ]},
+  { "name": "幸運蛋", "maxUses": 20 ,"effect":[
+    {"attributes":"最大血量","value":20},
+    {"attributes":"洞察力","value":1} 
+     ]},
+  { "name": "暗黑邪典", "maxUses": 10 ,"effect":[
+    {"attributes":"防禦力","value":-20},
+    {"attributes":"最大傷害","value":40000} 
+     ]},
+  { "name": "咒蝕靈魂", "maxUses": 10 ,"effect":[
+    {"attributes":"最大魔力","value":50},
+    {"attributes":"最大咒蝕","value":30} 
+     ]},
+  { "name": "蔚藍神酎", "maxUses": 10 ,"effect":[
+    {"attributes":"最大魔力","value":200},
+    {"attributes":"魔力恢復","value":12},
+    {"attributes":"最大血量","value":250}
+     ]}
+]

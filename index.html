@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="zh-TW">
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image" href="/1000.jpg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>魔法金屬屬性計算</title>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <style>
+    .over-limit {
+      background-color: #ffcccc;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="app">
+
+    <!-- 角色職業 ------------------------------------>
+    <label>當前職業:
+      <select v-model="playerJob">
+        <option v-for="job in availableJobs" :key="job.job" :value="job.job">{{ job.job }}</option>
+      </select>
+    </label>
+
+    <!-- 角色等級 ------------------------------------>
+    <label>當前等級:
+      <input type="number" v-model.number="playerLevel" />
+    </label>
+
+    <!-- 屬性點 ------------------------------------>
+    <h3>屬性點</h3>
+    <!-- 重置屬性點按鈕 -->
+    <button @click="resetAttributesPoints">重置屬性點</button>
+    <table border="1">
+      <tr>
+        <th>屬性點</th>
+        <th>點數</th>
+      </tr>
+      <tr v-for="(stat, index) in attributesPoints" :key="index">
+        <td>{{ stat.name }}</td>
+        <td>
+          <input type="number" 
+            v-model.number="attributesPointsUsed[stat.name]"
+            :min="0"
+            @input="calculateAttributesPoints" 
+            :class="{ 'over-limit': totalUsedPoints > playerLevel*2+3 }" />
+        </td>
+      </tr>
+    </table>
+
+    <!-- 屬性道具列表 ------------------------------------>
+    <h3>屬性道具</h3>
+    <!-- 重置屬性道具按鈕 -->
+    <button @click="resetAttributesItems">重置屬性道具</button>
+    <!-- 吃滿屬性道具按鈕 -->
+    <button @click="maxAttributesItems">吃滿屬性道具</button>
+    <table border="1">
+      <thead>
+        <tr>
+          <th>道具名稱</th>
+          <th>已使用</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="item in props" :key="item.name">
+          <td>{{ item.name }}</td>
+          <td>
+            <input type="number" v-model.number="item.used" :min="0" :max="item.maxUses"
+              @input="calculateAttributesItems" />
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- 食品收藏列表 --------------------------------------->
+
+
+
+    <!-- 總屬性顯示 -------------------------------------->
+    <h2>總屬性</h2>
+    <table border="1">
+      <tr>
+        <th>屬性名稱</th>
+        <th>數值</th>
+      </tr>
+      <tr v-for="(stat, name) in totalStats" :key="name">
+        <td>{{ name }}</td>
+        <td>{{ stat.value }}{{ stat.suffix }}</td>
+      </tr>
+    </table>
+  </div>
+
+  <script>
+    const { createApp } = Vue;
+
+    createApp({
+      data() {
+        return {
+          playerLevel: 1,
+          playerJob: "",
+          availableJobs: [],
+          props: [],
+          attributesPoints: [],
+          attributesPointsUsed: {},
+          foodItems: [],
+          previousAttributesPointsStats: {},
+          previousAttributesItemsStats: {},
+          previousFoodItemsStats: {},
+          totalStats: {}
+        };
+      },
+      computed: {
+        totalUsedPoints() {
+          return Object.values(this.attributesPointsUsed).reduce((sum, val) => sum + val, 0);
+        }
+      },
+      mounted() {
+        this.loadJobList();
+        this.loadAttributePoints();
+        this.loadAttributeItems();
+        this.loadFoodItems();
+        this.loadBaseStats();
+      },
+      methods: {
+        // 讀取職業列表
+        loadJobList() {
+          fetch("/job_list.json")
+            .then(response => response.json())  // 解析 JSON 資料
+            .then(data => {
+              this.availableJobs = data;  // 將資料設置到 availableJobs
+            })
+            .catch(error => console.error('載入職業資料時發生錯誤:', error));
+        },
+
+        // 讀取屬性點
+        loadAttributePoints() {
+          fetch("/attribute_point.json")
+            .then(response => response.json())
+            .then(data => {
+              this.attributesPoints = data;
+              this.attributesPointsUsed = data.reduce((acc, stat) => {
+                acc[stat.name] = 0;  // 初始值為 0
+                return acc;
+              }, {});
+            })
+            .catch(error => console.error("屬性道具數據載入錯誤:", error));
+        },
+
+        // 讀取屬性道具
+        loadAttributeItems() {
+          fetch("/attribute_item.json")
+            .then(response => response.json())
+            .then(data => {
+              this.props = data.map(item => ({ ...item, used: 0 }));
+            })
+            .catch(error => console.error("屬性道具數據載入錯誤:", error));
+        },
+
+        // 讀取基礎屬性
+        loadBaseStats() {
+          fetch("/base.json")
+            .then(response => response.json())
+            .then(data => {
+              this.totalStats = data.reduce((acc, attr) => {
+                acc[attr.name] = { value: attr.value, suffix: attr.suffix };
+                return acc;
+              }, {});
+            })
+            .catch(error => console.error("基礎數據載入錯誤:", error));
+        },
+
+        // 讀取食品收藏
+        loadFoodItems() {
+          fetch("/food_item.json")
+            .then(response => response.json())
+            .then(data => {
+              this.foodItems = data.map(item => ({ ...item, used: 0 }));
+            })
+            .catch(error => console.error("食品收藏數據載入錯誤:", error));
+        },
+
+        // 計算屬性點影響
+        calculateAttributesPoints() {
+          let newStats = {};
+
+          this.attributesPoints.forEach(item => {
+            let usedPoints = this.attributesPointsUsed[item.name] || 0;
+
+            item.effect.forEach(effect => {
+              if (!newStats[effect.attributes]) {
+                newStats[effect.attributes] = 0;
+              }
+              newStats[effect.attributes] += effect.value * usedPoints;
+            });
+          });
+
+          // 計算變化量
+          let differenceStats = {};
+          for (const key in newStats) {
+            differenceStats[key] = newStats[key] - (this.previousAttributesPointsStats[key] || 0);
+          }
+          for (const key in this.previousAttributesPointsStats) {
+            if (!(key in newStats)) {
+              differenceStats[key] = -this.previousAttributesPointsStats[key];
+            }
+          }
+
+          this.previousAttributesPointsStats = { ...newStats };
+          this.updateStats(differenceStats);
+        },
+
+        // 計算屬性道具影響
+        calculateAttributesItems() {
+          let newStats = {};
+
+          this.props.forEach(item => {
+            item.effect.forEach(effect => {
+              if (!newStats[effect.attributes]) {
+                newStats[effect.attributes] = 0;
+              }
+              newStats[effect.attributes] += effect.value * item.used;
+            });
+          });
+
+          // 計算變化量
+          let differenceStats = {};
+          for (const key in newStats) {
+            differenceStats[key] = newStats[key] - (this.previousAttributesItemsStats[key] || 0);
+          }
+          for (const key in this.previousAttributesItemsStats) {
+            if (!(key in newStats)) {
+              differenceStats[key] = -this.previousAttributesItemsStats[key];
+            }
+          }
+
+          this.previousAttributesItemsStats = { ...newStats };
+          this.updateStats(differenceStats);
+        },
+
+        // 更新總屬性
+        updateStats(differenceStats) {
+          for (const key in differenceStats) {
+            if (this.totalStats[key]) {
+              this.totalStats[key].value += differenceStats[key];
+            }
+          }
+        },
+
+        // 重置屬性點
+        resetAttributesPoints() {
+          this.attributesPoints.forEach(stat => this.attributesPointsUsed[stat.name] = 0);
+          this.calculateAttributesPoints();
+        },
+
+        // 重置屬性道具
+        resetAttributesItems() {
+          this.props.forEach(item => item.used = 0);
+          this.calculateAttributesItems();
+        },
+
+        // 吃滿屬性道具
+        maxAttributesItems() {
+          this.props.forEach(item => item.used = item.maxUses);
+          this.calculateAttributesItems();
+        }
+      }
+    }).mount("#app");
+  </script>
+</body>
+
+</html>

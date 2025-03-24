@@ -1,0 +1,14 @@
+[
+  { "job": "劍鬥士", "type": "melee" ,"hp":100},
+  { "job": "神射手", "type": "ranger" ,"hp":70},
+  { "job": "大法師", "type": "magic" ,"hp":70},
+  { "job": "夜行者", "type": "melee" ,"hp":70},
+  { "job": "暗騎士", "type": "melee" ,"hp":100},
+  { "job": "白魔導", "type": "magic" ,"hp":90},
+  { "job": "召喚師", "type": "magic" ,"hp":80},
+  { "job": "咒術師", "type": "magic" ,"hp":80},
+  { "job": "蠱毒師", "type": "ranger" ,"hp":80},
+  { "job": "武士", "type": "melee" ,"hp":70},
+  { "job": "追獵者", "type": "ranger" ,"hp":70},
+  { "job": "訓獸師", "type": "ranger" ,"hp":80}
+]

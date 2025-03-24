@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>魔法金屬屬性計算</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
+    <style>
+        /* 統一設定輸入框的大小 */
+        .attribute_item-input {
+          width: 40px;  /* 設定寬度 */
+          height: 15px;  /* 設定高度 */
+          text-align: left;  /* 讓數字居中顯示 */
+        }
+      </style>
+    
+</head>
+<body>
+    <div id="app">
+        <h2>屬性道具</h2>
+        <button @click="resetUses">重置屬性道具</button>
+        <button @click="maxUses">吃滿屬性道具</button>
+        <table border="1">
+          <thead>
+            <tr>
+              <th>道具名稱</th>
+              <th>數量</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(item, index) in attribute_item" :key="index">
+              <td>{{ item.name }}</td>
+              <td><input type="number" v-model="item.uses" :max="item.maxUses" min="0" class="attribute_item-input" /></td>
+            </tr>
+          </tbody>
+        </table>
+        <br>
+      
+      </div>
+
+    <script>
+        const { createApp } = Vue;
+
+createApp({
+  data() {
+    return {
+      equipment: [],  // 裝備數據
+      attribute_item: [],      // 屬性道具數據
+      totalAttributes: []  // 最終計算結果
+    };
+  },
+  mounted() {
+    // 載入裝備 JSON 檔案
+    fetch("equipment.json")
+      .then(response => response.json())
+      .then(data => {
+        this.equipment = data;  // 存儲裝備數據
+      })
+      .catch(error => console.error("裝備數據載入錯誤:", error));
+
+    // 載入屬性道具 JSON 檔案
+    fetch("attribute_item.json")
+      .then(response => response.json())
+      .then(data => {
+        this.attribute_item = data;  // 存儲屬性道具數據
+      })
+      .catch(error => console.error("屬性道具數據載入錯誤:", error));
+  },
+  methods: {
+    resetUses() {
+          this.attribute_item.forEach(item => {
+            item.uses = 0;
+          });
+        },
+        // 將所有道具的使用次數設置為最大值
+        maxUses() {
+          this.attribute_item.forEach(item => {
+            item.uses = item.maxUses;
+          });
+        },
+    calculateTotal() {
+      // 模擬計算邏輯，將裝備屬性與道具屬性加總
+      let attributes = [
+      [
+        { name: "最大血量", value: 0, suffix: "" },
+        { name: "最大魔力", value: 0, suffix: "" },
+        { name: "防禦力", value: 0, suffix: "" },
+        { name: "生命恢復", value: 0, suffix: "" },
+        { name: "魔力恢復", value: 0, suffix: "" },
+        { name: "最大血性", value: 0, suffix: "%" },
+        { name: "恢復量", value: 0, suffix: "%" },
+        { name: "傷害減少", value: 0, suffix: "%" },
+        { name: "重力傷害減少", value: 0, suffix: "%" },
+        { name: "攻擊力", value: 0, suffix: "" },
+        { name: "物理攻擊", value: 0, suffix: "" },
+        { name: "魔法攻擊", value: 0, suffix: "" },
+        { name: "暴擊值", value: 0, suffix: "" },
+        { name: "迴避值", value: 0, suffix: "" },
+        { name: "造成的傷害", value: 0, suffix: "%" },
+        { name: "暴擊傷害", value: 0, suffix: "%" },
+        { name: "最終傷害", value: 0, suffix: "%" },
+        { name: "職業增幅", value: 0, suffix: "%" },
+        { name: "冷卻恢復速度", value: 0, suffix: "%" },
+        { name: "魔力減免", value: 0, suffix: "%" },
+        { name: "穿透值", value: 0, suffix: "" },
+        { name: "最大傷害", value: 0, suffix: "" },
+        { name: "意志力", value: 0, suffix: "%" },
+        { name: "洞察力", value: 0, suffix: "%" },
+        { name: "手藝", value: 0, suffix: "%" },
+        { name: "健康", value: 0, suffix: "" },
+        { name: "水量", value: 0, suffix: "" },
+        { name: "疲勞", value: 0, suffix: "" },
+        { name: "掉寶率", value: 0, suffix: "%" }
+    ]
+      ];
+
+      // 加總選擇的裝備屬性
+      this.equipment.forEach((equip) => {
+        equip.options.forEach(option => {
+          if (option.id === equip.selected) {
+            const equipAttributes = option.attributes.split(", ");
+            equipAttributes.forEach(attr => {
+              const [key, val] = attr.split(": ");
+              const attribute = attributes.find(attr => attr.name === key);
+              if (attribute) attribute.value += parseInt(val);
+            });
+          }
+        });
+      });
+
+      // 加總道具屬性
+      this.attribute_item.forEach(prop => { 
+        if (prop.value > 0) { 
+        // 根據道具使用次數計算屬性加成
+        if (prop.name === "力量") 
+            attributes[0].value += 5 * prop.value; // 假設力量影響防禦
+        if (prop.name === "幸運") 
+            attributes[1].value += 10 * prop.value; // 假設幸運影響生命
+        if (prop.name === "速度") 
+            attributes[2].value += 3 * prop.value;  // 假設速度影響魔法抗性
+        }
+    });
+
+      // 更新最終屬性
+      this.totalAttributes = attributes;
+    }
+  }
+}).mount("#app");
+    </script>
+</body>
+</html>

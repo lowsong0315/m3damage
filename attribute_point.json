@@ -1,0 +1,33 @@
+[
+  { "name": "力量","effect":[
+   {"attributes":"物理攻擊力","value":2},
+   {"attributes":"最大血量","value":40},
+   {"attributes":"最大傷害","value":40},
+    {"attributes":"造成的傷害","value":1,"requiredClass":"melee"}
+    ]
+  },
+  { "name": "敏捷","effect":[
+    {"attributes":"物理攻擊力","value":2},
+    {"attributes":"迴避率","value":1},
+    {"attributes":"造成的傷害","value":1,"requiredClass":"ranger"}
+     ]
+   },
+   { "name": "智慧","effect":[
+    {"attributes":"魔法攻擊力","value":2},
+    {"attributes":"暴擊率","value":1},
+    {"attributes":"造成的傷害","value":1,"requiredClass":"magic"}
+     ]
+   },
+   { "name": "感知","effect":[
+    {"attributes":"冷卻恢復速度","value":0.5}
+     ]
+   },
+   { "name": "體質","effect":[
+    {"attributes":"防禦力","value":1},
+    {"attributes":"最大負重","value":2},
+    {"attributes":"重力傷害減少","value":0.3},
+    {"attributes":"生命恢復","value":5},
+    {"attributes":"暴擊傷害","value":0.3}
+     ]
+   }
+]
