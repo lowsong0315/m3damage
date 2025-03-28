@@ -11,6 +11,7 @@
     .over-limit {
       background-color: #ffcccc;
     }
+    
   </style>
 </head>
 
@@ -20,7 +21,7 @@
     <!-- 角色職業 ------------------------------------>
     <label>當前職業:
       <select v-model="playerJob">
-        <option v-for="job in availableJobs" :key="job.job" :value="job.job">{{ job.job }}</option>
+        <option v-for="job in availableJobs" :key="job.job" :value="job">{{ job.job }}</option>
       </select>
     </label>
 
@@ -98,6 +99,8 @@
       </tbody>
     </table>
 
+    <!-- 專精系統 -------------------------------------->
+
 
     <!-- 總屬性顯示 -------------------------------------->
     <h3>總屬性</h3>
@@ -121,6 +124,7 @@
         return {
           playerLevel: 1,
           playerJob: "",
+          playerJobType: "",
           availableJobs: [],
           props: [],
           attributesPoints: [],
@@ -131,6 +135,17 @@
           previousFoodItemsStats: {},
           totalStats: {}
         };
+      },
+      watch: {
+        // playerLevel(newLevel) {
+        //   this.resetAttributesPoints();
+        //   this.resetAttributesItems();
+        //   this.resetFoodItems();
+        // },
+        playerJob(newJob) {
+          this.playerJobType = newJob.type;
+          this.calculateAttributesPoints();
+        }
       },
       computed: {
         totalUsedPoints() {
@@ -210,10 +225,12 @@
             let usedPoints = this.attributesPointsUsed[item.name] || 0;
 
             item.effect.forEach(effect => {
-              if (!newStats[effect.attributes]) {
-                newStats[effect.attributes] = 0;
-              }
+              if (!effect.requiredType || effect.requiredType === this.playerJobType) {
+                if (!newStats[effect.attributes]) {
+                  newStats[effect.attributes] = 0;
+                }
               newStats[effect.attributes] += effect.value * usedPoints;
+              }
             });
           });
 
@@ -294,7 +311,11 @@
             if (this.totalStats[key]) {
               this.totalStats[key].value += differenceStats[key];
             }
-          }
+          };
+          console.log("更新總屬性:", this.totalStats);
+          console.log("屬性點:", this.previousAttributesPointsStats);
+          console.log("屬性道具:", this.previousAttributesItemsStats);
+          console.log("食品收藏:", this.previousFoodItemsStats);
         },
 
         // 重置屬性點------------------------------------

@@ -3,19 +3,19 @@
    {"attributes":"物理攻擊力","value":2},
    {"attributes":"最大血量","value":40},
    {"attributes":"最大傷害","value":40},
-    {"attributes":"造成的傷害","value":1,"requiredClass":"melee"}
+    {"attributes":"造成的傷害","value":1,"requiredType":"melee"}
     ]
   },
   { "name": "敏捷","effect":[
     {"attributes":"物理攻擊力","value":2},
     {"attributes":"迴避率","value":1},
-    {"attributes":"造成的傷害","value":1,"requiredClass":"ranger"}
+    {"attributes":"造成的傷害","value":1,"requiredType":"ranger"}
      ]
    },
    { "name": "智慧","effect":[
     {"attributes":"魔法攻擊力","value":2},
     {"attributes":"暴擊率","value":1},
-    {"attributes":"造成的傷害","value":1,"requiredClass":"magic"}
+    {"attributes":"造成的傷害","value":1,"requiredType":"magic"}
      ]
    },
    { "name": "感知","effect":[

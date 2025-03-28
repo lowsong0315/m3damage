@@ -25,6 +25,7 @@
   { "name": "洞察力", "value": 100, "suffix": "%" },
   { "name": "手藝", "value": 100, "suffix": "%" },
   { "name": "最大負重", "value": 64, "suffix": "" },
+  { "name": "最大耐力", "value": 200, "suffix": "" },
   { "name": "最大健康", "value": 1000, "suffix": "" },
   { "name": "最大水量", "value": 1000, "suffix": "" },
   { "name": "最大疲勞", "value": 1000, "suffix": "" },
