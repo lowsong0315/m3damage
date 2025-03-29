@@ -11,6 +11,32 @@
     .over-limit {
       background-color: #ffcccc;
     }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(9, 40px);
+      grid-template-rows: repeat(9, 40px);
+      gap: -1px;
+    }
+    .cell {
+      width: 35px;
+      height: 35px;
+      border: 1px solid #ccc;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: rgb(97, 85, 85);
+      cursor: pointer;
+    }
+
+    .cell.selected {
+      background-color: rgb(22, 231, 126);
+    }
+
+    .cell img {
+      width: 30px;
+      height: 30px;
+    }
     
   </style>
 </head>
@@ -100,7 +126,26 @@
     </table>
 
     <!-- 專精系統 -------------------------------------->
-
+    <h3>專精系統</h3>
+    <p>剩餘專精點數: {{ remainingPoints }}</p>
+    <button @click="resetSpecialization">重置專精</button>
+    <div class="grid">
+      <div 
+        v-for="(row, rowIndex) in grid" 
+        :key="'row-' + rowIndex"
+        class="grid-row"
+      >
+        <div 
+          v-for="(cell, colIndex) in row" 
+          :key="'cell-' + rowIndex + '-' + colIndex"
+          class="cell" 
+          :class="{ selected: cell.active }"
+          @click="toggleCell(rowIndex, colIndex)"
+        >
+          <img :src="getCellImage(cell)" class="cell-image" />
+        </div>
+      </div>
+    </div>
 
     <!-- 總屬性顯示 -------------------------------------->
     <h3>總屬性</h3>
@@ -126,24 +171,44 @@
           playerJob: "",
           playerJobType: "",
           availableJobs: [],
+          grid: Array.from({ length: 9 }, (_, row) => 
+            Array.from({ length: 9 }, (_, col) => ({
+              x: row, y: col,
+              value: 0,
+              attribute: "",
+              requiredType: null, // 新增職業限制
+              active: false // 是否啟動
+            }))
+          ),
+          center: { x: 4, y: 4 },
+          remainingPoints: 10,
           props: [],
           attributesPoints: [],
           attributesPointsUsed: {},
           foodItems: [],
+          previouslevelStats: {},
           previousAttributesPointsStats: {},
           previousAttributesItemsStats: {},
           previousFoodItemsStats: {},
+          previousSpecializationStats: {},
           totalStats: {}
         };
       },
       watch: {
+        
         // playerLevel(newLevel) {
         //   this.resetAttributesPoints();
         //   this.resetAttributesItems();
         //   this.resetFoodItems();
         // },
+        playerLevel(newLevel) {
+          this.calculateLevelStats();
+          this.resetSpecialization();
+          this.remainingPoints = Math.floor(this.playerLevel / 3) + 4;
+        },
         playerJob(newJob) {
           this.playerJobType = newJob.type;
+          this.calculateLevelStats();
           this.calculateAttributesPoints();
         }
       },
@@ -157,6 +222,7 @@
         this.loadAttributePoints();
         this.loadAttributeItems();
         this.loadFoodItems();
+        this.loadSpecializationData();
         this.loadBaseStats();
       },
       methods: {
@@ -166,6 +232,8 @@
             .then(response => response.json())  // 解析 JSON 資料
             .then(data => {
               this.availableJobs = data;  // 將資料設置到 availableJobs
+              this.playerJob = data[0];  // 預設選擇第一個職業
+              this.playerJobType = data[0].type;  // 預設職業類型
             })
             .catch(error => console.error('載入職業資料時發生錯誤:', error));
         },
@@ -215,6 +283,43 @@
               this.foodItems = data.map(item => ({ ...item, used: 0 }));
             })
             .catch(error => console.error("食品收藏數據載入錯誤:", error));
+        },
+
+        // 讀取專精系統------------------------------------
+        loadSpecializationData() {
+          fetch("/specialization.json")
+            .then(response => response.json())
+            .then(data => {
+              data.forEach(cell => {
+                this.grid[cell.x][cell.y].value = cell.value;
+                this.grid[cell.x][cell.y].attribute = cell.attribute;
+                this.grid[cell.x][cell.y].requiredType = cell.requiredType || null;
+                this.grid[cell.x][cell.y].icon = cell.icon || "default.png"; // 預設圖片
+              });
+              this.grid[this.center.x][this.center.y].active = true; // 中心格子預設啟動
+            })
+            .catch(error => console.error("專精數據載入錯誤:", error));
+        },
+
+        // 計算角色等級影響------------------------------------
+        calculateLevelStats() {
+          let newStats = {};
+          newStats["最大血量"] = 0
+          newStats["最大血量"] = (this.playerLevel - 1) * Number(this.playerJob.hp);
+                
+          // 計算變化量
+          let differenceStats = {};
+          for (const key in newStats) {
+            differenceStats[key] = newStats[key] - (this.previouslevelStats[key] || 0);
+          }
+          for (const key in this.previouslevelStats) {
+            if (!(key in newStats)) {
+              differenceStats[key] = -this.previouslevelStats[key];
+            }
+          }
+
+          this.previouslevelStats = { ...newStats };
+          this.updateStats(differenceStats);
         },
 
         // 計算屬性點影響------------------------------------
@@ -305,6 +410,105 @@
           this.updateStats(differenceStats);
         },
 
+        // 專精系統--------------------------------------
+        toggleCell(x, y) {
+          let cell = this.grid[x][y];
+          
+          // 如果點擊的是中心格子，則不進行任何操作
+          if (x === this.center.x && y === this.center.y) {
+            return;
+          }
+
+          if (cell.active) {
+            cell.active = false;
+            this.remainingPoints += 1;
+            this.updateSpecializationStats();
+            return;
+          }
+
+          if ((this.isAdjacentActive(x, y) || (x === this.center.x && y === this.center.y)) && this.remainingPoints > 0) {
+            cell.active = true;
+            this.remainingPoints -= 1;
+            this.updateSpecializationStats();
+          }
+        },
+
+        getCellImage(cell) {
+          if (!cell || !cell.icon) {
+            return "specialization/default.png"; // 預設圖片，避免 undefined 錯誤
+          }
+          return cell.active 
+            ? `specialization/${cell.icon.replace('.png', '_active.png')}`
+            : `specialization/${cell.icon}`;
+        },
+
+        isAdjacentActive(x, y) {
+          const directions = [
+            { dx: -1, dy: 0 }, { dx: 1, dy: 0 }, 
+            { dx: 0, dy: -1 }, { dx: 0, dy: 1 }
+          ];
+          return directions.some(({ dx, dy }) => {
+            let nx = x + dx, ny = y + dy;
+            return nx >= 0 && ny >= 0 && nx < 9 && ny < 9 && this.grid[nx][ny].active;
+          });
+        },
+
+        updateSpecializationStats() {
+          let newStats = {};
+
+          this.grid.forEach(row => {
+            row.forEach(cell => {
+              if (cell.active && cell.attribute) {
+                if (!cell.requiredType || cell.requiredType === this.playerJobType) {
+                  if (!newStats[cell.attribute]) {
+                    newStats[cell.attribute] = 0;
+                  }
+                  newStats[cell.attribute] += cell.value;
+                }
+              };
+              if (cell.active && cell.attribute == "防禦力") {
+                if (!newStats["傷害減少"]) {
+                  newStats["傷害減少"] = 0;
+                }
+                newStats["傷害減少"] += 3;
+              };
+              if (cell.active && cell.attribute == "造成的傷害" && !cell.requiredType) {
+                if (!newStats["穿透值"]) {
+                  newStats["穿透值"] = 0;
+                }
+                newStats["穿透值"] += 1;
+              }
+            }); 
+          });
+          if (!newStats["最大血量"]) {
+                  newStats["最大血量"] = 0;
+                }
+            if (!newStats["攻擊力"]) {
+                  newStats["攻擊力"] = 0;
+                }
+            if (!newStats["造成的傷害"]) {
+                  newStats["造成的傷害"] = 0;
+                }
+          // 這些是專精系統的額外效果
+          newStats["最大血量"] += 200;
+          newStats["攻擊力"] += 10;
+          newStats["造成的傷害"] += 50;
+
+          // 計算變化量
+          let differenceStats = {};
+          for (const key in newStats) {
+            differenceStats[key] = newStats[key] - (this.previousSpecializationStats[key] || 0);
+          }
+          for (const key in this.previousSpecializationStats) {
+            if (!(key in newStats)) {
+              differenceStats[key] = -this.previousSpecializationStats[key];
+            }
+          }
+
+          this.previousSpecializationStats = { ...newStats };
+          this.updateStats(differenceStats);
+        },
+
         // 更新總屬性------------------------------------
         updateStats(differenceStats) {
           for (const key in differenceStats) {
@@ -313,9 +517,11 @@
             }
           };
           console.log("更新總屬性:", this.totalStats);
+          console.log("等級:", this.previouslevelStats);
           console.log("屬性點:", this.previousAttributesPointsStats);
           console.log("屬性道具:", this.previousAttributesItemsStats);
           console.log("食品收藏:", this.previousFoodItemsStats);
+          console.log("專精系統:", this.previousSpecializationStats);
         },
 
         // 重置屬性點------------------------------------
@@ -346,6 +552,22 @@
         maxFoodItems() {
           this.foodItems.forEach(item => item.used = item.maxUses);
           this.calculateFoodItems();
+        },
+
+        // 重置專精系統------------------------------------
+        resetSpecialization() {
+          this.grid.forEach(row => {
+            row.forEach(cell => {
+              if (cell.active === true) {
+                if (cell.x === this.center.x && cell.y === this.center.y) {
+                  return; // 不重置中心格子
+                }
+                cell.active = false;
+                this.remainingPoints += 1;
+              }
+            });
+          });
+          this.updateSpecializationStats();
         }
       }
     }).mount("#app");
