@@ -147,6 +147,27 @@
       </div>
     </div>
 
+    <!-- 靈力系統 ------------------------------------>
+    <h3>靈力系統</h3>
+    <table border="1">
+      <tr>
+        <th>靈力</th>
+        <th>傷害加成</th>
+      </tr>
+      <tr v-for="i in 8" :key="i">
+        <td>
+          <select v-model="selectedSpiritual[i].name" @change="calculateSpiritualPower">
+            <option v-for="item in getTypeOptions(i)" :key="item.name" :value="item">
+              [{{ item.rarity }}] {{ item.name }}
+            </option>
+          </select>
+        </td>
+        <td>
+          <input type="number" v-model.number="selectedSpiritualPower[i]" :min="0" :max="7*i-1" @input="calculateSpiritualPower"/>
+        </td>
+      </tr>
+    </table>
+
     <!-- 總屬性顯示 -------------------------------------->
     <h3>總屬性</h3>
     <table border="1">
@@ -186,6 +207,10 @@
           attributesPoints: [],
           attributesPointsUsed: {},
           foodItems: [],
+          spirituallist: [],
+          selectedSpiritual: Array(9).fill({}),
+          selectedSpiritualPower: [],
+          previousSpiritualPowerStats: {},
           previouslevelStats: {},
           previousAttributesPointsStats: {},
           previousAttributesItemsStats: {},
@@ -223,6 +248,7 @@
         this.loadAttributeItems();
         this.loadFoodItems();
         this.loadSpecializationData();
+        this.loadSpiritualPowerData();
         this.loadBaseStats();
       },
       methods: {
@@ -299,6 +325,27 @@
               this.grid[this.center.x][this.center.y].active = true; // 中心格子預設啟動
             })
             .catch(error => console.error("專精數據載入錯誤:", error));
+        },
+
+        // 讀取靈力系統------------------------------------
+        loadSpiritualPowerData() {
+          fetch("/spiritual_power.json")
+            .then(response => response.json())
+            .then(data => {
+              this.spirituallist = data;
+            })
+            .catch(error => console.error("靈力數據載入錯誤:", error));
+
+          // 預設靈力
+          for (let i = 0; i < 9; i++) {
+            this.selectedSpiritual[i] = { name: ""};
+            this.selectedSpiritualPower[i] = 0 ;
+          }
+        },
+
+        // 取得指定 type 的靈力
+        getTypeOptions(type) {
+          return this.spirituallist.filter(item => item.type === type);
         },
 
         // 計算角色等級影響------------------------------------
@@ -509,6 +556,47 @@
           this.updateStats(differenceStats);
         },
 
+        // 計算靈力系統------------------------------------
+        calculateSpiritualPower() {
+          let newStats = {};
+
+          this.selectedSpiritual.forEach((item, index) => {
+            if (item.name) {
+              let selectedItem = this.selectedSpiritual.find(i => i.name === item.name);
+              if (selectedItem.name.effect) {
+                selectedItem.name.effect.forEach(effect => {
+                    if (!newStats[effect.attributes]) {
+                      newStats[effect.attributes] = 0;
+                    }
+                    newStats[effect.attributes] += effect.value ;
+                });
+                }
+              }
+          });
+
+          // 計算靈力傷害加成
+          newStats["攻擊力"] = 0;
+          this.selectedSpiritualPower.forEach((item, index) => {
+            if (item > 0) {
+              newStats["攻擊力"] += this.selectedSpiritualPower[index];
+            }
+          });
+
+          // 計算變化量
+          let differenceStats = {};
+          for (const key in newStats) {
+            differenceStats[key] = newStats[key] - (this.previousSpiritualPowerStats[key] || 0);
+          }
+          for (const key in this.previousSpiritualPowerStats) {
+            if (!(key in newStats)) {
+              differenceStats[key] = -this.previousSpiritualPowerStats[key];
+            }
+          }
+
+          this.previousSpiritualPowerStats = { ...newStats };
+          this.updateStats(differenceStats);
+        },
+
         // 更新總屬性------------------------------------
         updateStats(differenceStats) {
           for (const key in differenceStats) {
@@ -522,6 +610,7 @@
           console.log("屬性道具:", this.previousAttributesItemsStats);
           console.log("食品收藏:", this.previousFoodItemsStats);
           console.log("專精系統:", this.previousSpecializationStats);
+          console.log("靈力系統:", this.previousSpiritualPowerStats);
         },
 
         // 重置屬性點------------------------------------
