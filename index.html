@@ -156,7 +156,7 @@
       </tr>
       <tr v-for="i in 8" :key="i">
         <td>
-          <select v-model="selectedSpiritual[i].name" @change="calculateSpiritualPower">
+          <select v-model="selectedSpiritual[i]" @change="calculateSpiritualPower">
             <option v-for="item in getTypeOptions(i)" :key="item.name" :value="item">
               [{{ item.rarity }}] {{ item.name }}
             </option>
@@ -559,12 +559,15 @@
         // 計算靈力系統------------------------------------
         calculateSpiritualPower() {
           let newStats = {};
+          newStats["攻擊力"] = 0;
+          newStats["造成的傷害"] = 0;
 
           this.selectedSpiritual.forEach((item, index) => {
             if (item.name) {
               let selectedItem = this.selectedSpiritual.find(i => i.name === item.name);
-              if (selectedItem.name.effect) {
-                selectedItem.name.effect.forEach(effect => {
+              console.log("選擇的靈力:", selectedItem);
+              if (selectedItem.effect) {
+                selectedItem.effect.forEach(effect => {
                     if (!newStats[effect.attributes]) {
                       newStats[effect.attributes] = 0;
                     }
@@ -573,9 +576,36 @@
                 }
               }
           });
+          
+          // 計算靈力4階段加成 -------------------------------------------還有 飾品、鍍金、護石
+          if (this.selectedSpiritual[4].value) {
+          let spiritualPowerBonus = 0;
+        
+          spiritualPowerBonus += this.previousAttributesItemsStats["暴擊率"] || 0;
+          spiritualPowerBonus += this.previousAttributesPointsStats["暴擊率"] || 0;
+          spiritualPowerBonus += this.previousSpecializationStats["暴擊率"] || 0;
+          
+          spiritualPowerBonus += this.previousAttributesItemsStats["迴避率"] || 0;
+          spiritualPowerBonus += this.previousAttributesPointsStats["迴避率"] || 0;
+          spiritualPowerBonus += this.previousSpecializationStats["迴避率"] || 0;
+
+          spiritualPowerBonus = Math.floor(spiritualPowerBonus / this.selectedSpiritual[4].value);
+          newStats["攻擊力"] += spiritualPowerBonus + 1;
+          }
+
+          // 計算靈力5階段加成
+          let rarity = this.selectedSpiritual[5].rarity;
+          let selected = 0;
+          this.selectedSpiritual.forEach((item, index) => {
+            if (item.rarity === rarity) {
+              selected += 1;
+            }
+          });
+
+          newStats["造成的傷害"] += this.selectedSpiritual[5].value * selected;
+
 
           // 計算靈力傷害加成
-          newStats["攻擊力"] = 0;
           this.selectedSpiritualPower.forEach((item, index) => {
             if (item > 0) {
               newStats["攻擊力"] += this.selectedSpiritualPower[index];
