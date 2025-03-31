@@ -10,7 +10,7 @@
   { "name": "重力傷害減少", "value": 0, "suffix": "%" },
   { "name": "攻擊力", "value": 0, "suffix": "" },
   { "name": "物理攻擊力", "value": 0, "suffix": "" },
-  { "name": "魔法攻擊力", "value": 10, "suffix": "" },
+  { "name": "魔法攻擊力", "value": 0, "suffix": "" },
   { "name": "暴擊率", "value": 5, "suffix": "" },
   { "name": "迴避率", "value": 5, "suffix": "" },
   { "name": "造成的傷害", "value": 100, "suffix": "%" },

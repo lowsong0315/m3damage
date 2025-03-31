@@ -168,6 +168,28 @@
       </tr>
     </table>
 
+    <!-- 人體改造 -------------------------------------->
+    <h3>人體改造</h3>
+    <button @click="resetHumanReform">重置改造</button>
+    <div v-for="i in 3" :key="i">
+      <select v-model="humanReformSelected[i]" @change="calculateHumanReform">
+        <option v-for="item in humanReformList" :key="item.name" :value="item">
+           {{ item.name }}
+        </option>
+      </select>
+    </div>
+
+    <!-- 惡魔改造 -------------------------------------->
+    <h3>惡魔改造</h3>
+    <button @click="resetDemonReform">重置改造</button>
+    <div v-for="i in 3" :key="i">
+      <select v-model="demonReformSelected[i]" @change="calculateDemonReform">
+        <option v-for="item in demonReformList" :key="item.name" :value="item">
+           {{ item.name }}
+        </option>
+      </select>
+    </div>
+
     <!-- 總屬性顯示 -------------------------------------->
     <h3>總屬性</h3>
     <table border="1">
@@ -202,7 +224,7 @@
             }))
           ),
           center: { x: 4, y: 4 },
-          remainingPoints: 10,
+          remainingPoints: 4,
           props: [],
           attributesPoints: [],
           attributesPointsUsed: {},
@@ -216,6 +238,14 @@
           previousAttributesItemsStats: {},
           previousFoodItemsStats: {},
           previousSpecializationStats: {},
+          humanReformList: [],
+          humanReformSelected: [],
+          previoushumanReformStats: {},
+          demonReformList: [],
+          demonReformSelected: [],
+          previousdemonReformStats: {},
+          sacfrificialList: [],
+          previousSacrificialStats: {},
           totalStats: {}
         };
       },
@@ -240,7 +270,10 @@
       computed: {
         totalUsedPoints() {
           return Object.values(this.attributesPointsUsed).reduce((sum, val) => sum + val, 0);
-        }
+        },
+        
+        
+        
       },
       mounted() {
         this.loadJobList();
@@ -249,6 +282,8 @@
         this.loadFoodItems();
         this.loadSpecializationData();
         this.loadSpiritualPowerData();
+        this.loadHumanReformData();
+        this.loadDemonReformData();
         this.loadBaseStats();
       },
       methods: {
@@ -346,6 +381,26 @@
         // 取得指定 type 的靈力
         getTypeOptions(type) {
           return this.spirituallist.filter(item => item.type === type);
+        },
+
+        // 讀取人體改造------------------------------------
+        loadHumanReformData() {
+          fetch("/human_reform.json")
+            .then(response => response.json())
+            .then(data => {
+              this.humanReformList = data;
+            })
+            .catch(error => console.error("人體改造數據載入錯誤:", error));
+        },
+
+        // 讀取惡魔改造------------------------------------
+        loadDemonReformData() {
+          fetch("/demon_reform.json")
+            .then(response => response.json())
+            .then(data => {
+              this.demonReformList = data;
+            })
+            .catch(error => console.error("惡魔改造數據載入錯誤:", error));
         },
 
         // 計算角色等級影響------------------------------------
@@ -502,6 +557,9 @@
 
         updateSpecializationStats() {
           let newStats = {};
+          newStats["最大血量"] = 0;
+          newStats["攻擊力"] = 0;
+          newStats["造成的傷害"] = 0;
 
           this.grid.forEach(row => {
             row.forEach(cell => {
@@ -527,15 +585,7 @@
               }
             }); 
           });
-          if (!newStats["最大血量"]) {
-                  newStats["最大血量"] = 0;
-                }
-            if (!newStats["攻擊力"]) {
-                  newStats["攻擊力"] = 0;
-                }
-            if (!newStats["造成的傷害"]) {
-                  newStats["造成的傷害"] = 0;
-                }
+          
           // 這些是專精系統的額外效果
           newStats["最大血量"] += 200;
           newStats["攻擊力"] += 10;
@@ -627,6 +677,72 @@
           this.updateStats(differenceStats);
         },
 
+        // 計算人體改造------------------------------------
+        calculateHumanReform() {
+          let newStats = {};
+          
+          this.humanReformSelected.forEach(item => {
+            if (item.name) {
+              let selectedItem = this.humanReformList.find(i => i.name === item.name);
+              if (selectedItem.effect) {
+                selectedItem.effect.forEach(effect => {
+                  if (!newStats[effect.attributes]) {
+                    newStats[effect.attributes] = 0;
+                  }
+                  newStats[effect.attributes] += effect.value;
+                });
+              }
+            }
+          });
+
+          // 計算變化量
+          let differenceStats = {};
+          for (const key in newStats) {
+            differenceStats[key] = newStats[key] - (this.previoushumanReformStats[key] || 0);
+          }
+          for (const key in this.previoushumanReformStats) {
+            if (!(key in newStats)) {
+              differenceStats[key] = -this.previoushumanReformStats[key];
+            }
+          }
+
+          this.previoushumanReformStats = { ...newStats };
+          this.updateStats(differenceStats);
+        },
+
+        // 計算惡魔改造------------------------------------
+        calculateDemonReform() {
+          let newStats = {};
+          
+          this.demonReformSelected.forEach(item => {
+            if (item.name) {
+              let selectedItem = this.demonReformList.find(i => i.name === item.name);
+              if (selectedItem.effect) {
+                selectedItem.effect.forEach(effect => {
+                  if (!newStats[effect.attributes]) {
+                    newStats[effect.attributes] = 0;
+                  }
+                  newStats[effect.attributes] += effect.value;
+                });
+              }
+            }
+          });
+
+          // 計算變化量
+          let differenceStats = {};
+          for (const key in newStats) {
+            differenceStats[key] = newStats[key] - (this.previousdemonReformStats[key] || 0);
+          }
+          for (const key in this.previousdemonReformStats) {
+            if (!(key in newStats)) {
+              differenceStats[key] = -this.previousdemonReformStats[key];
+            }
+          }
+
+          this.previousdemonReformStats = { ...newStats };
+          this.updateStats(differenceStats);
+        },
+
         // 更新總屬性------------------------------------
         updateStats(differenceStats) {
           for (const key in differenceStats) {
@@ -641,6 +757,8 @@
           console.log("食品收藏:", this.previousFoodItemsStats);
           console.log("專精系統:", this.previousSpecializationStats);
           console.log("靈力系統:", this.previousSpiritualPowerStats);
+          console.log("人體改造:", this.previoushumanReformStats);
+          console.log("惡魔改造:", this.previousdemonReformStats);
         },
 
         // 重置屬性點------------------------------------
@@ -687,7 +805,23 @@
             });
           });
           this.updateSpecializationStats();
-        }
+        },
+
+        // 重置人體改造------------------------------------
+        resetHumanReform() {
+          this.humanReformSelected.forEach((item, index) => {
+            this.humanReformSelected[index] = { name: "" };
+          });
+          this.calculateHumanReform();
+        },
+
+        // 重置惡魔改造------------------------------------
+        resetDemonReform() {
+          this.demonReformSelected.forEach((item, index) => {
+            this.demonReformSelected[index] = { name: "" };
+          });
+          this.calculateDemonReform();
+        },
       }
     }).mount("#app");
   </script>
