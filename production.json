@@ -1,0 +1,12 @@
+[
+  { "name": "採礦技巧", "attribute": "最大生命", "bouns1": 100 , "bouns2": 300 },
+  { "name": "農耕技巧", "attribute": "暴擊率", "bouns1": 7 , "bouns2": 12 },
+  { "name": "釣魚技巧", "attribute": "迴避率", "bouns1": 7 , "bouns2": 12 },
+  { "name": "養蜂技巧", "attribute": "掉寶率", "bouns1": 10 , "bouns2": 20 },
+  { "name": "馴龍技巧", "attribute": "造成的傷害", "bouns1": 10 , "bouns2": 20 },
+  { "name": "寶石工藝", "attribute": "魔力減免", "bouns1": 5 , "bouns2": 10 },
+  { "name": "精鑄技巧", "attribute": "防禦力", "bouns1": 9 , "bouns2": 18 },
+  { "name": "烹飪技巧", "attribute": "最大魔力", "bouns1": 300 , "bouns2": 600 },
+  { "name": "裁縫技巧", "attribute": "最大疲勞", "bouns1": 150 , "bouns2": 300 ,"extra":[{ "attribute": "最大負重", "bouns1": 30 , "bouns2": 60}]},
+  { "name": "釀造技巧", "attribute": "生命恢復", "bouns1": 16 , "bouns2": 32 ,"extra":[{ "attribute": "魔力恢復", "bouns1": 50 , "bouns2": 100}]}
+]

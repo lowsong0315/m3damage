@@ -172,7 +172,7 @@
     <h3>人體改造</h3>
     <button @click="resetHumanReform">重置改造</button>
     <div v-for="i in 3" :key="i">
-      <select v-model="humanReformSelected[i]" @change="calculateHumanReform">
+      <select v-model="humanReformSelected[i]" @change="calculateReform">
         <option v-for="item in humanReformList" :key="item.name" :value="item">
            {{ item.name }}
         </option>
@@ -183,12 +183,32 @@
     <h3>惡魔改造</h3>
     <button @click="resetDemonReform">重置改造</button>
     <div v-for="i in 3" :key="i">
-      <select v-model="demonReformSelected[i]" @change="calculateDemonReform">
+      <select v-model="demonReformSelected[i]" @change="calculateReform">
         <option v-for="item in demonReformList" :key="item.name" :value="item">
            {{ item.name }}
         </option>
       </select>
     </div>
+
+    <!-- 獻靈儀式 -------------------------------------->
+    <h3>獻靈儀式</h3>
+    <button @click="resetSpecialReform">重置改造</button>
+    <div>
+      <select v-model="specialReformSelected" @change="calculateReform">
+        <option v-for="item in specialReformList" :key="item.name" :value="item">
+           {{ item.name }}
+        </option>
+      </select>
+    </div>
+
+    <!-- 生產等級 --------------------------------------->
+    <h3>生產等級</h3>
+    <table border="1">
+      <tr v-for="(level, index) in productionList" :key="index">
+        <td>{{ level.name }}</td>
+        <td><input type="number" v-model.number="productionLevel[index]" :min="0" :max="10" @input="calculatePrdduction"></td>
+      </tr>
+    </table>
 
     <!-- 總屬性顯示 -------------------------------------->
     <h3>總屬性</h3>
@@ -225,6 +245,9 @@
           ),
           center: { x: 4, y: 4 },
           remainingPoints: 4,
+          productionList: [],
+          productionLevel: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          previousProductionLevelStats: {},
           props: [],
           attributesPoints: [],
           attributesPointsUsed: {},
@@ -240,12 +263,11 @@
           previousSpecializationStats: {},
           humanReformList: [],
           humanReformSelected: [],
-          previoushumanReformStats: {},
+          previousReformStats: {},
           demonReformList: [],
           demonReformSelected: [],
-          previousdemonReformStats: {},
-          sacfrificialList: [],
-          previousSacrificialStats: {},
+          specialReformList: [],
+          specialReformSelected: [],
           totalStats: {}
         };
       },
@@ -284,6 +306,8 @@
         this.loadSpiritualPowerData();
         this.loadHumanReformData();
         this.loadDemonReformData();
+        this.loadSpecialReformData();
+        this.loadProductionData();
         this.loadBaseStats();
       },
       methods: {
@@ -401,6 +425,26 @@
               this.demonReformList = data;
             })
             .catch(error => console.error("惡魔改造數據載入錯誤:", error));
+        },
+
+        // 讀取獻靈儀式------------------------------------
+        loadSpecialReformData() {
+          fetch("/special_reform.json")
+            .then(response => response.json())
+            .then(data => {
+              this.specialReformList = data;
+            })
+            .catch(error => console.error("獻靈儀式數據載入錯誤:", error));
+        },
+
+        // 讀取生產等級------------------------------------
+        loadProductionData() {
+          fetch("/production.json")
+            .then(response => response.json())
+            .then(data => {
+              this.productionList = data;
+            })
+            .catch(error => console.error("生產等級數據載入錯誤:", error));
         },
 
         // 計算角色等級影響------------------------------------
@@ -634,10 +678,14 @@
           spiritualPowerBonus += this.previousAttributesItemsStats["暴擊率"] || 0;
           spiritualPowerBonus += this.previousAttributesPointsStats["暴擊率"] || 0;
           spiritualPowerBonus += this.previousSpecializationStats["暴擊率"] || 0;
+          spiritualPowerBonus += this.previousReformStats["暴擊率"] || 0;
+          spiritualPowerBonus += previousProductionLevelStats["暴擊率"] || 0;
           
           spiritualPowerBonus += this.previousAttributesItemsStats["迴避率"] || 0;
           spiritualPowerBonus += this.previousAttributesPointsStats["迴避率"] || 0;
           spiritualPowerBonus += this.previousSpecializationStats["迴避率"] || 0;
+          spiritualPowerBonus += this.previousReformStats["迴避率"] || 0;
+          spiritualPowerBonus += previousProductionLevelStats["迴避率"] || 0;
 
           spiritualPowerBonus = Math.floor(spiritualPowerBonus / this.selectedSpiritual[4].value);
           newStats["攻擊力"] += spiritualPowerBonus + 1;
@@ -677,10 +725,11 @@
           this.updateStats(differenceStats);
         },
 
-        // 計算人體改造------------------------------------
-        calculateHumanReform() {
+        // 計算改造------------------------------------
+        calculateReform() {
           let newStats = {};
           
+          // 計算人體改造
           this.humanReformSelected.forEach(item => {
             if (item.name) {
               let selectedItem = this.humanReformList.find(i => i.name === item.name);
@@ -695,25 +744,7 @@
             }
           });
 
-          // 計算變化量
-          let differenceStats = {};
-          for (const key in newStats) {
-            differenceStats[key] = newStats[key] - (this.previoushumanReformStats[key] || 0);
-          }
-          for (const key in this.previoushumanReformStats) {
-            if (!(key in newStats)) {
-              differenceStats[key] = -this.previoushumanReformStats[key];
-            }
-          }
-
-          this.previoushumanReformStats = { ...newStats };
-          this.updateStats(differenceStats);
-        },
-
-        // 計算惡魔改造------------------------------------
-        calculateDemonReform() {
-          let newStats = {};
-          
+          // 計算惡魔改造
           this.demonReformSelected.forEach(item => {
             if (item.name) {
               let selectedItem = this.demonReformList.find(i => i.name === item.name);
@@ -728,18 +759,73 @@
             }
           });
 
-          // 計算變化量
-          let differenceStats = {};
-          for (const key in newStats) {
-            differenceStats[key] = newStats[key] - (this.previousdemonReformStats[key] || 0);
-          }
-          for (const key in this.previousdemonReformStats) {
-            if (!(key in newStats)) {
-              differenceStats[key] = -this.previousdemonReformStats[key];
+          // 計算獻靈儀式
+          if (this.specialReformSelected.name) {
+            let selectedItem = this.specialReformList.find(i => i.name === this.specialReformSelected.name);
+            if (selectedItem.effect) {
+              selectedItem.effect.forEach(effect => {
+                if (!newStats[effect.attributes]) {
+                  newStats[effect.attributes] = 0;
+                }
+                newStats[effect.attributes] += effect.value;
+              });
             }
           }
 
-          this.previousdemonReformStats = { ...newStats };
+          // 計算變化量
+          let differenceStats = {};
+          for (const key in newStats) {
+            differenceStats[key] = newStats[key] - (this.previousReformStats[key] || 0);
+          }
+          for (const key in this.previousReformStats) {
+            if (!(key in newStats)) {
+              differenceStats[key] = -this.previousReformStats[key];
+            }
+          }
+
+          this.previousReformStats = { ...newStats };
+          this.updateStats(differenceStats);
+        },
+
+        // 計算生產等級------------------------------------
+        calculatePrdduction() {
+          let newStats = {};
+          this.productionLevel.forEach((level, index) => {
+            if (level >= 5) {
+              let selectedItem = this.productionList[index];
+              if (selectedItem.attribute) {
+                if (!newStats[selectedItem.attribute]) {
+                  newStats[selectedItem.attribute] = 0;
+                }
+                newStats[selectedItem.attribute] += selectedItem.bouns1
+                if (level >= 10) {
+                  newStats[selectedItem.attribute] += selectedItem.bouns2  
+                }
+              }
+              if (selectedItem.extra) {
+                if (!newStats[selectedItem.extra[0].attribute]) {
+                  newStats[selectedItem.extra[0].attribute] = 0;
+                }
+                newStats[selectedItem.extra[0].attribute] += selectedItem.extra[0].bouns1
+                if (level >= 10) {
+                  newStats[selectedItem.extra[0].attribute] += selectedItem.extra[0].bouns2  
+                }
+              }
+            }
+          });
+        
+          // 計算變化量
+          let differenceStats = {};
+          for (const key in newStats) {
+            differenceStats[key] = newStats[key] - (this.previousProductionLevelStats[key] || 0);
+          }
+          for (const key in this.previousProductionLevelStats) {
+            if (!(key in newStats)) {
+              differenceStats[key] = -this.previousProductionLevelStats[key];
+            }
+          }
+
+          this.previousProductionLevelStats = { ...newStats };
           this.updateStats(differenceStats);
         },
 
@@ -757,8 +843,8 @@
           console.log("食品收藏:", this.previousFoodItemsStats);
           console.log("專精系統:", this.previousSpecializationStats);
           console.log("靈力系統:", this.previousSpiritualPowerStats);
-          console.log("人體改造:", this.previoushumanReformStats);
-          console.log("惡魔改造:", this.previousdemonReformStats);
+          console.log("改造效果:", this.previousReformStats);
+          console.log("生產等級:", this.previousProductionLevelStats);
         },
 
         // 重置屬性點------------------------------------
@@ -812,7 +898,7 @@
           this.humanReformSelected.forEach((item, index) => {
             this.humanReformSelected[index] = { name: "" };
           });
-          this.calculateHumanReform();
+          this.calculateReform();
         },
 
         // 重置惡魔改造------------------------------------
@@ -820,8 +906,16 @@
           this.demonReformSelected.forEach((item, index) => {
             this.demonReformSelected[index] = { name: "" };
           });
-          this.calculateDemonReform();
+          this.calculateReform();
         },
+
+        // 重置獻靈儀式------------------------------------
+        resetSpecialReform() {
+          this.specialReformSelected = { name: "" };
+          this.calculateReform();
+        },
+        // 重置所有------------------------------------
+
       }
     }).mount("#app");
   </script>

@@ -1,0 +1,23 @@
+[
+  {"name":"財富奉獻","effect":[
+    {"attributes":"掉寶率","value":50}
+    ]},
+  {"name":"靈魂奉獻"},
+  {"name":"邪術奉獻","effect":[
+    {"attributes":"物理攻擊力","value":20},
+    {"attributes":"魔法攻擊力","value":20},
+    {"attributes":"造成的傷害","value":20},
+    {"attributes":"暴擊率","value":15},
+    {"attributes":"迴避率","value":15},
+    {"attributes":"穿透值","value":4},
+    {"attributes":"防禦力","value":40}
+    ]},
+  {"name":"遠古奉獻","effect":[
+    {"attributes":"物理攻擊力","value":20},
+    {"attributes":"魔法攻擊力","value":20}
+    ]},
+  {"name":"古神奉獻","effect":[
+    {"attributes":"最終傷害","value":10},
+    {"attributes":"穿透值","value":10}
+    ]}
+]
