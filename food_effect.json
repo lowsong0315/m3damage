@@ -1,0 +1,8 @@
+[
+  { "name": "穀類", "attribute": "防禦力","value":0},
+  { "name": "蛋豆魚肉類", "attribute": "物理攻擊力","extra":"魔法攻擊力","value":0},
+  { "name": "蔬菜類", "attribute": "穿透值","value":0},
+  { "name": "水果類", "attribute": "暴擊率","extra":"迴避率","value":0},
+  { "name": "奶類", "attribute": "暴擊傷害","value":0},
+  { "name": "酯類","value":0}
+]

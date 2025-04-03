@@ -206,10 +206,19 @@
     <table border="1">
       <tr v-for="(level, index) in productionList" :key="index">
         <td>{{ level.name }}</td>
-        <td><input type="number" v-model.number="productionLevel[index]" :min="0" :max="10" @input="calculatePrdduction"></td>
+        <td><input type="range" v-model.number="productionLevel[index]" :min="0" :max="10" @input="calculatePrdduction">[{{ productionLevel[index] }}]</td>
       </tr>
     </table>
 
+    <!-- 飲食平衡 ---------------------------------------->
+    <h3>飲食平衡</h3>
+    <table border="1">
+      <tr v-for="item in foodEffectsList" :key="item.name">
+        <td>{{ item.name }}</td>
+        <td><input type="range" v-model.number="item.value" :min="0" :max="30" @input="calculateFoodEffect">[{{ item.value }}]</td>
+      </tr>
+    </table>
+    
     <!-- 總屬性顯示 -------------------------------------->
     <h3>總屬性</h3>
     <table border="1">
@@ -252,6 +261,8 @@
           attributesPoints: [],
           attributesPointsUsed: {},
           foodItems: [],
+          foodEffectsList: [],
+          previousFoodEffectsStats: {},
           spirituallist: [],
           selectedSpiritual: Array(9).fill({}),
           selectedSpiritualPower: [],
@@ -308,6 +319,7 @@
         this.loadDemonReformData();
         this.loadSpecialReformData();
         this.loadProductionData();
+        this.loadFoodEffects();
         this.loadBaseStats();
       },
       methods: {
@@ -446,6 +458,17 @@
             })
             .catch(error => console.error("生產等級數據載入錯誤:", error));
         },
+
+        // 讀取飲食平衡------------------------------------\
+        loadFoodEffects() {
+          fetch("/food_effect.json")
+            .then(response => response.json())
+            .then(data => {
+              this.foodEffectsList = data;
+            })
+            .catch(error => console.error("飲食平衡數據載入錯誤:", error));
+        },
+
 
         // 計算角色等級影響------------------------------------
         calculateLevelStats() {
@@ -679,13 +702,13 @@
           spiritualPowerBonus += this.previousAttributesPointsStats["暴擊率"] || 0;
           spiritualPowerBonus += this.previousSpecializationStats["暴擊率"] || 0;
           spiritualPowerBonus += this.previousReformStats["暴擊率"] || 0;
-          spiritualPowerBonus += previousProductionLevelStats["暴擊率"] || 0;
+          spiritualPowerBonus += this.previousProductionLevelStats["暴擊率"] || 0;
           
           spiritualPowerBonus += this.previousAttributesItemsStats["迴避率"] || 0;
           spiritualPowerBonus += this.previousAttributesPointsStats["迴避率"] || 0;
           spiritualPowerBonus += this.previousSpecializationStats["迴避率"] || 0;
           spiritualPowerBonus += this.previousReformStats["迴避率"] || 0;
-          spiritualPowerBonus += previousProductionLevelStats["迴避率"] || 0;
+          spiritualPowerBonus += this.previousProductionLevelStats["迴避率"] || 0;
 
           spiritualPowerBonus = Math.floor(spiritualPowerBonus / this.selectedSpiritual[4].value);
           newStats["攻擊力"] += spiritualPowerBonus + 1;
@@ -829,6 +852,43 @@
           this.updateStats(differenceStats);
         },
 
+        // 計算飲食平衡------------------------------------
+        calculateFoodEffect() {
+          let newStats = {};
+          this.foodEffectsList.forEach(item => {
+            if (item.value > 0) {
+              let selectedItem = this.foodEffectsList.find(i => i.name === item.name);
+              if (selectedItem.attribute) {
+                if (!newStats[selectedItem.attribute]) {
+                  newStats[selectedItem.attribute] = 0;
+                }
+                newStats[selectedItem.attribute] += item.value;
+              }
+              if (selectedItem.extra) {
+                if (!newStats[selectedItem.extra]) {
+                  newStats[selectedItem.extra] = 0;
+                }
+                newStats[selectedItem.extra] += item.value;
+              }
+              newStats["穿透值"] = Math.floor(newStats["穿透值"] / 6);
+            }
+          });
+
+          // 計算變化量
+          let differenceStats = {};
+          for (const key in newStats) {
+            differenceStats[key] = newStats[key] - (this.previousFoodEffectsStats[key] || 0);
+          }
+          for (const key in this.previousFoodEffectsStats) {
+            if (!(key in newStats)) {
+              differenceStats[key] = -this.previousFoodEffectsStats[key];
+            }
+          }
+
+          this.previousFoodEffectsStats = { ...newStats };
+          this.updateStats(differenceStats);
+        },
+
         // 更新總屬性------------------------------------
         updateStats(differenceStats) {
           for (const key in differenceStats) {
@@ -845,6 +905,7 @@
           console.log("靈力系統:", this.previousSpiritualPowerStats);
           console.log("改造效果:", this.previousReformStats);
           console.log("生產等級:", this.previousProductionLevelStats);
+          console.log("飲食平衡:", this.previousFoodEffectsStats);
         },
 
         // 重置屬性點------------------------------------
