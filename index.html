@@ -325,7 +325,7 @@
       methods: {
         // 讀取職業列表------------------------------------
         loadJobList() {
-          fetch("/job_list.json")
+          fetch("https://raw.githubusercontent.com/lowsong0315/m3damage/main/job_list.json")
             .then(response => response.json())  // 解析 JSON 資料
             .then(data => {
               this.availableJobs = data;  // 將資料設置到 availableJobs
